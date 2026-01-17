@@ -1,6 +1,7 @@
 import type { DomNode, DomMeta, HookMap, HighlighterOptions } from '@src/types';
 import EventEmitter from '@src/util/event.emitter';
 import HighlightRange from '@src/model/range';
+import { getTextFromRange } from '@src/model/range/selection';
 import HighlightSource from '@src/model/source';
 import uuid from '@src/util/uuid';
 import Hook from '@src/util/hook';
@@ -130,7 +131,8 @@ export default class Highlighter extends EventEmitter<EventHandlerMap> {
             offset: range.endOffset,
         };
 
-        const text = range.toString();
+        // Use getTextFromRange for proper newline handling between block elements
+        const text = getTextFromRange(range);
         let id = this.hooks.Render.UUID.call(start, end, text);
 
         id = typeof id !== 'undefined' && id !== null ? id : uuid();

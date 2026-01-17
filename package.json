@@ -1,10 +1,18 @@
 {
-  "name": "web-highlighter",
-  "version": "0.7.4",
-  "description": "✨A no-runtime dependency lib for text highlighting & persistence on any website ✨🖍️",
+  "name": "@plannotator/web-highlighter",
+  "version": "0.8.0",
+  "description": "A no-runtime dependency lib for text highlighting & persistence on any website. Fork with selection fixes.",
   "main": "dist/web-highlighter.min.js",
+  "module": "src/index.ts",
   "types": "dist/index.d.ts",
   "browser": "dist/web-highlighter.min.js",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./dist/web-highlighter.min.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "scripts": {
     "lint": "eslint \"src/**/*.ts\" --fix",
     "test": "mocha -r ts-node/register -r tsconfig-paths/register test/**.spec.ts",
@@ -31,10 +39,10 @@
       "eslint --fix"
     ]
   },
-  "homepage": "https://alienzhou.github.io/web-highlighter",
+  "homepage": "https://github.com/backnotprop/web-highlighter",
   "repository": {
     "type": "git",
-    "url": "https://github.com/alienzhou/web-highlighter"
+    "url": "https://github.com/backnotprop/web-highlighter"
   },
   "keywords": [
     "text",
@@ -47,12 +55,12 @@
   ],
   "author": "alienzhou <alienzhou16@163.com>",
   "license": "MIT",
-  "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.2.11",
     "@types/jsdom": "^16.2.3",
     "@types/jsdom-global": "^3.0.2",
     "@types/mocha": "^7.0.2",
+    "@types/node": "^14.18.63",
     "@types/sinon": "^9.0.1",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",

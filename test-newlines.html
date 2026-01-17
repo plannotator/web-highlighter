@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>web-highlighter Newlines Test</title>
+    <style>
+        body {
+            font-family: system-ui, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+        .test-content {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-content p {
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e8f4e8;
+            border-radius: 8px;
+        }
+        .result-block {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .result-block h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .match { color: green; }
+        .no-match { color: red; }
+        .highlight-mengshou-wrap {
+            background-color: #ffeb3b;
+        }
+    </style>
+</head>
+<body>
+    <h1>web-highlighter Newlines Fix Test</h1>
+
+    <h2>Test 1: Compare APIs</h2>
+    <p><strong>Instructions:</strong> Select text across multiple paragraphs below, then click "Compare APIs".</p>
+
+    <div class="test-content" id="test-content">
+        <p>This is the first paragraph with some text.</p>
+        <p>This is the second paragraph with different text.</p>
+        <p>This is the third paragraph for good measure.</p>
+    </div>
+
+    <button onclick="compareApis()">Compare APIs</button>
+    <button onclick="clearResults()">Clear Results</button>
+
+    <h2>Test 2: web-highlighter Integration</h2>
+    <p><strong>Instructions:</strong> Select text across paragraphs below, then click "Highlight Selection". Check that source.text has newlines.</p>
+
+    <div class="test-content" id="highlighter-root">
+        <p>First paragraph for highlighting test.</p>
+        <p>Second paragraph for highlighting test.</p>
+        <p>Third paragraph for highlighting test.</p>
+    </div>
+
+    <button onclick="initHighlighter()">Initialize Highlighter</button>
+    <button onclick="highlightSelection()">Highlight Selection</button>
+    <button onclick="clearHighlights()">Clear All</button>
+
+    <div class="results" id="results" style="display: none;"></div>
+
+    <script src="./dist/web-highlighter.min.js"></script>
+    <script>
+        let highlighter = null;
+        let lastSource = null;
+
+        function compareApis() {
+            const selection = window.getSelection();
+
+            if (selection.isCollapsed || selection.rangeCount === 0) {
+                alert('Please select some text first (try selecting across multiple paragraphs)');
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+
+            const selectionText = selection.toString();
+            const rangeText = range.toString();
+
+            // Also test innerText approach
+            const fragment = range.cloneContents();
+            const temp = document.createElement('div');
+            temp.appendChild(fragment);
+            document.body.appendChild(temp);
+            const innerTextResult = temp.innerText;
+            temp.remove();
+
+            showResults(`
+                <h3>API Comparison Results</h3>
+
+                <div class="result-block">
+                    <h4>Selection.toString() ${selectionText.includes('\\n') ? '(has newlines)' : '(NO newlines)'}</h4>
+                    <pre>${escapeHtml(selectionText)}</pre>
+                    <p>JSON: <code>${JSON.stringify(selectionText)}</code></p>
+                </div>
+
+                <div class="result-block">
+                    <h4>Range.toString() ${rangeText.includes('\\n') ? '(has newlines)' : '(NO newlines)'}</h4>
+                    <pre>${escapeHtml(rangeText)}</pre>
+                    <p>JSON: <code>${JSON.stringify(rangeText)}</code></p>
+                </div>
+
+                <div class="result-block">
+                    <h4>innerText (cloned) ${innerTextResult.includes('\\n') ? '(has newlines)' : '(NO newlines)'}</h4>
+                    <pre>${escapeHtml(innerTextResult)}</pre>
+                    <p>JSON: <code>${JSON.stringify(innerTextResult)}</code></p>
+                </div>
+
+                <div class="result-block">
+                    <h4>Comparison</h4>
+                    <p class="${selectionText === rangeText ? 'match' : 'no-match'}">
+                        Selection === Range: <strong>${selectionText === rangeText ? 'YES' : 'NO (different!)'}</strong>
+                    </p>
+                </div>
+            `);
+        }
+
+        function initHighlighter() {
+            if (highlighter) {
+                highlighter.dispose();
+            }
+
+            highlighter = new Highlighter({
+                $root: document.getElementById('highlighter-root'),
+                style: {
+                    className: 'highlight-mengshou-wrap'
+                }
+            });
+
+            highlighter.on(Highlighter.event.CREATE, function(data) {
+                lastSource = data.sources[0];
+                const text = lastSource.text;
+                const hasNewlines = text.includes('\\n');
+
+                showResults(`
+                    <h3>Highlight Created!</h3>
+
+                    <div class="result-block">
+                        <h4>source.text ${hasNewlines ? '(HAS NEWLINES - FIX WORKS!)' : '(no newlines)'}</h4>
+                        <pre>${escapeHtml(text)}</pre>
+                        <p>JSON: <code>${JSON.stringify(text)}</code></p>
+                        <p>Length: ${text.length}</p>
+                    </div>
+
+                    <div class="result-block">
+                        <h4>Full Source Object</h4>
+                        <pre>${JSON.stringify(lastSource, null, 2)}</pre>
+                    </div>
+
+                    <div class="result-block ${hasNewlines ? 'match' : 'no-match'}">
+                        <h4>Result</h4>
+                        <p><strong>${hasNewlines ? 'SUCCESS: Newlines are preserved!' : 'ISSUE: No newlines found'}</strong></p>
+                    </div>
+                `);
+            });
+
+            alert('Highlighter initialized! Now select text across paragraphs and click "Highlight Selection"');
+        }
+
+        function highlightSelection() {
+            if (!highlighter) {
+                alert('Please initialize the highlighter first');
+                return;
+            }
+
+            const selection = window.getSelection();
+            if (selection.isCollapsed) {
+                alert('Please select some text first');
+                return;
+            }
+
+            const range = selection.getRangeAt(0);
+            highlighter.fromRange(range);
+        }
+
+        function clearHighlights() {
+            if (highlighter) {
+                highlighter.removeAll();
+            }
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function showResults(html) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function clearResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

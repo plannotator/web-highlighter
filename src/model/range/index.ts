@@ -56,7 +56,10 @@ class HighlightRange {
             offset: range.endOffset,
         };
 
-        const text = range.toString();
+        // Use Selection.toString() for proper newline handling between block elements
+        // Range.toString() includes HTML source whitespace, Selection.toString() gives clean output
+        const selection = window.getSelection();
+        const text = selection?.toString() || range.toString();
         let id = idHook.call(start, end, text);
 
         id = typeof id !== 'undefined' && id !== null ? id : uuid();
