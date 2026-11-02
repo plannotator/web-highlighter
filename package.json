@@ -1,18 +1,11 @@
 {
   "name": "@plannotator/web-highlighter",
-  "version": "0.8.0",
+  "version": "0.8.2",
   "description": "A no-runtime dependency lib for text highlighting & persistence on any website. Fork with selection fixes.",
   "main": "dist/web-highlighter.min.js",
-  "module": "src/index.ts",
+  "module": "dist/web-highlighter.min.js",
   "types": "dist/index.d.ts",
   "browser": "dist/web-highlighter.min.js",
-  "exports": {
-    ".": {
-      "import": "./src/index.ts",
-      "require": "./dist/web-highlighter.min.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
   "scripts": {
     "lint": "eslint \"src/**/*.ts\" --fix",
     "test": "mocha -r ts-node/register -r tsconfig-paths/register test/**.spec.ts",

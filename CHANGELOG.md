@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.8.2
+
+### Fix
+
+- `dispose()` now removes the highlighter's handler from the shared internal error emitter. Before, every disposed highlighter stayed reachable from that module-level emitter, and with it its `$root` and the whole DOM tree around it, so apps that create and dispose many highlighters leaked memory. A disposed highlighter also no longer receives internal errors from other highlighters.
+
+### Packaging
+
+- `package.json` matches what 0.8.1 was published with: `module` points at `dist/web-highlighter.min.js` and there is no `exports` map, so bundlers keep resolving the built file.
+
+---
+
 ## v0.7.4
 
 ### Fix
